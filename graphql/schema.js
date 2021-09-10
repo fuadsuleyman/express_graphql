@@ -15,7 +15,7 @@ type Post {
 type User {
     _id: ID!
     name: String!
-    email: Srring!
+    email: String!
     password: String
     status: String!
     posts: [Post!]!
@@ -27,11 +27,16 @@ input UserInputData {
     password: String!
 }
 
+type RootQuery {
+    hello: String
+}
+
 type RootMutation {
     createUser(userInput: UserInputData): User!
 }
 
 schema {
+        query: RootQuery
         mutation: RootMutation
     }
 `)
