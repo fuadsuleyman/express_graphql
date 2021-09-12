@@ -18,6 +18,7 @@ mutation {
 }
 
 # Mutation createPost
+// isAuth error occure
 mutation {
   createPost(postInput: {title: "test", content: "test", imageUrl: "some url"}) {
     _id
@@ -31,5 +32,22 @@ query{
   login(email: "fuli@gmail.com", password: "123456") {
     token
     userId
+  }
+}
+
+// autorization error occure
+# Query posts
+query{
+  posts {
+    posts{
+      _id
+      title
+      content
+      creator {
+        name
+      }
+      createdAt
+    }
+    totalPosts
   }
 }
