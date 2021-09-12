@@ -42,12 +42,14 @@ module.exports = {
         if(!user){
             const error = new Error('User not found!');
             error.code = 401;
+            console.log(error)
             throw error;
         }
         const isEqual = await bcrypt.compare(password, user.password);
         if(!isEqual){
-            const erroe = new Error('Password is incorrect!');
+            const error = new Error('Password is incorrect!');
             error.code = 401;
+            console.log(error)
             throw error;
         }
         const token = jwt.sign(
@@ -91,15 +93,45 @@ module.exports = {
             title: postInput.title,
             content: postInput.content,
             imageUrl: postInput.imageUrl,
-            creator = user
+            creator: user
         });
         const createdPost = await post.save();
         user.posts.push(createdPost);
+        await user.save();
         return { ...createdPost._doc,
                 _id: createdPost._id.toString(),
                 createdAt: createdPost.createdAt.toISOString(),
                 updatedAt: createdPost.updatedAt.toISOString()
             }
+    },
+    posts: async function(args, req){
+
+        if(!req.isAuth){
+            const error = new Error('Not Authenticated!')
+            error.code = 401;
+            throw error;
+        }
+        const totalPosts = Post.find().countDocuments();
+        const myPosts = await Post.find()
+            .sort({ createdAt: -1 })
+            .populate('creator');
+        if (!myPosts){
+            const error = new Error('Can not fetch posts!');
+            error.code = 404;
+            console.log(error)
+            throw error;
+        }
+        return {
+            posts: myPosts.map(p => {
+                return {
+                    ...p._doc,
+                    _id: p._id.toString(),
+                    createdAt: p.createdAt.toISOString(),
+                    updatedAt: p.updatedAt.toISOString()
+                }
+            }),
+            totalPosts: totalPosts
+        }
     }
 
 }
